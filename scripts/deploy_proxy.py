@@ -5,21 +5,19 @@ import subprocess
 from string import Template
 import requests
 
-# Configuration
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "../configs/config.json")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "../templates")
 POM_FILE = os.path.join(BASE_DIR, "../pom.xml")
 
 def load_config():
-    """Load configuration from config.json."""
     if not os.path.exists(CONFIG_FILE):
         raise FileNotFoundError(f"Configuration file not found: {CONFIG_FILE}")
     with open(CONFIG_FILE, 'r') as file:
         return json.load(file)
 
 def create_directories(proxy_name):
-    """Create directory structure for the proxy bundle."""
     proxy_dir = os.path.join(BASE_DIR, proxy_name, "apiproxy")
     os.makedirs(os.path.join(proxy_dir, "policies"), exist_ok=True)
     os.makedirs(os.path.join(proxy_dir, "proxies"), exist_ok=True)
@@ -27,42 +25,60 @@ def create_directories(proxy_name):
     return proxy_dir
 
 def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list, target_server_name):
-    """Generate XML files dynamically based on templates."""
-    policies_dir = os.path.join(TEMPLATES_DIR, "policies")
     for policy in policies_list:
-        policy_file = os.path.join(policies_dir, f"{policy}.xml")
-        if not os.path.exists(policy_file):
-            raise FileNotFoundError(f"Policy template not found: {policy_file}")
-        with open(policy_file, "r") as template_file:
-            template = Template(template_file.read())
-            output = template.substitute(proxy_name=proxy_name)
-            with open(os.path.join(proxy_dir, "policies", f"{policy}.xml"), "w") as output_file:
+        template_path = f"{TEMPLATES_DIR}/policies/{policy}.xml"
+        output_path = f"{proxy_dir}/policies/{policy}.xml"
+        try:
+            with open(template_path, "r") as template_file:
+                template_content = template_file.read()
+                print(f"Processing template: {template_path}")
+                template = Template(template_content)
+                output = template.substitute(proxy_name=proxy_name)
+                with open(output_path, "w") as output_file:
+                    output_file.write(output)
+                print(f"Generated file: {output_path}")
+        except KeyError as e:
+            print(f"Missing placeholder in template {template_path}: {e}")
+            raise
+        except Exception as e:
+            print(f"Error processing template {template_path}: {e}")
+            raise
+
+
+    proxy_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/proxies/default.xml"
+    proxy_output_path = f"{proxy_dir}/proxies/default.xml"
+    try:
+        with open(proxy_template_path, "r") as template_file:
+            template_content = template_file.read()
+            template = Template(template_content)
+            output = template.substitute(proxy_base_path=proxy_base_path)
+            with open(proxy_output_path, "w") as output_file:
                 output_file.write(output)
+    except Exception as e:
+        print(f"Error processing proxy template: {e}")
+        raise
 
-    # Proxy Endpoint
-    proxy_template_file = os.path.join(TEMPLATES_DIR, "bundle", "apiproxy", "proxies", "default.xml")
-    with open(proxy_template_file, "r") as template_file:
-        template = Template(template_file.read())
-        output = template.substitute(proxy_base_path=proxy_base_path)
-        with open(os.path.join(proxy_dir, "proxies", "default.xml"), "w") as output_file:
-            output_file.write(output)
 
-    # Target Endpoint
-    target_template_file = os.path.join(TEMPLATES_DIR, "bundle", "apiproxy", "targets", "default.xml")
-    with open(target_template_file, "r") as template_file:
-        template = Template(template_file.read())
-        output = template.substitute(target_server_name=target_server_name)
-        with open(os.path.join(proxy_dir, "targets", "default.xml"), "w") as output_file:
-            output_file.write(output)
+    target_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/targets/default.xml"
+    target_output_path = f"{proxy_dir}/targets/default.xml"
+    try:
+        with open(target_template_path, "r") as template_file:
+            template_content = template_file.read()
+            template = Template(template_content)
+            output = template.substitute(target_server_name=target_server_name)
+            with open(target_output_path, "w") as output_file:
+                output_file.write(output)
+    except Exception as e:
+        print(f"Error processing target template: {e}")
+        raise
+
 
 def create_zip(proxy_dir):
-    """Create zip bundle of the proxy."""
     zip_path = shutil.make_archive(proxy_dir, 'zip', os.path.dirname(proxy_dir), os.path.basename(proxy_dir))
     print(f"Created zip bundle at: {zip_path}")
     return zip_path
 
 def validate_proxy(token, apigee_base_url, proxy_bundle_path):
-    """Validate the proxy bundle with Apigee."""
     headers = {"Authorization": f"Bearer {token}"}
     with open(proxy_bundle_path, "rb") as file:
         files = {"file": file}
@@ -77,7 +93,6 @@ def validate_proxy(token, apigee_base_url, proxy_bundle_path):
     print(response.text)
 
 def deploy_with_maven(proxy_name, env_name, gcp_project_id):
-    """Deploy the proxy bundle using Maven."""
     proxy_bundle_path = os.path.join(BASE_DIR, proxy_name, "apiproxy.zip")
     maven_command = [
         "mvn", "clean", "install", "-Pgoogleapi",
@@ -96,7 +111,6 @@ if __name__ == "__main__":
     import sys
     try:
         config = load_config()
-        # Common parameters
         PROXY_NAME = os.getenv("PROXY_NAME", config["proxy_name"])
         PROXY_CATEGORY = os.getenv("PROXY_CATEGORY", config["proxy_category"])
         PROXY_BASE_PATH = os.getenv("PROXY_BASE_PATH", config["proxy_base_path"])
