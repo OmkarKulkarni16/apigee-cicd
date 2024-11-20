@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage continueOnError="false" enabled="true" name="AM-RequestPayloadToBackendLog">
+    <DisplayName>AM-RequestPayloadToBackendLog</DisplayName>
+    <AssignVariable>
+        <Name>requestRoutedToBackend</Name>
+        <Template>{replaceAll(request.content,'"',replacement)}</Template>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+    <AssignTo createNew="false" transport="http" type="request">request</AssignTo>
+</AssignMessage>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-responseToClientLog">
+    <DisplayName>AM-responseToClientLog</DisplayName>
+    <Properties/>
+    <AssignVariable>
+        <Name>responseToClient</Name>
+        <Template>{replaceAll(response.content,slash,'')}</Template>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>resp-replyText</Name>
+        <Template>{replaceAll(resp-replyText,slash,'')}</Template>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>resp-replyText</Name>
+        <Template>{replaceAll(resp-replyText,'"',replacement)}</Template>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>responseToClient</Name>
+        <Template>{replaceAll(responseToClient,'"',replacement)}</Template>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

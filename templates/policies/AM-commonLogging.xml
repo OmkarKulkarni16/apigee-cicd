@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage continueOnError="false" enabled="true" name="AM-commonLogging">
+    <DisplayName>AM-commonLogging</DisplayName>
+    <Properties/>
+    <AssignVariable>
+        <Name>requestFieldLogs</Name>
+        <Template>req-MerchantReferenceNo = {firstnonnull(requestLogs.req-MerchantReferenceNo,'Not-Applicable')}</Template>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>responseFieldLogs</Name>
+        <Template>resp-errorCode = {firstnonnull(responseLogs.resp-errorCode,'Not-Applicable')} | resp-errorMessage = {firstnonnull(responseLogs.resp-errorMessage,'Not-Applicable')}  | resp-status = {firstnonnull(responseLogs.resp-status,'Not-Applicable')}</Template>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

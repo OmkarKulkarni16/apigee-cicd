@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage continueOnError="false" enabled="true" name="AM-setSuccessFlag">
+    <DisplayName>AM-setSuccessFlag</DisplayName>
+    <Properties/>
+    <AssignVariable>
+        <Name>IPAddress</Name>
+        <Ref>request.header.x-forwarded-for</Ref>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>Criticality</Name>
+        <Value>JOSE-High</Value>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>isSuccess</Name>
+        <Value>false</Value>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>APIProxyType</Name>
+        <Value>Inbound</Value>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+    <AssignTo createNew="false" transport="http" type="request">request</AssignTo>
+</AssignMessage>

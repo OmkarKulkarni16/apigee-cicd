@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RaiseFault continueOnError="false" enabled="true" name="RF-responsePayloadValidation">
+    <DisplayName>RF-responsePayloadValidation</DisplayName>
+    <Properties/>
+    <FaultResponse>
+        <Set>
+            <Payload contentType="application/problem+json" variablePrefix="@@" variableSuffix="##">{"title": "Internal Server Error","errors": [{"code": "TH99500","reason": "Backend Service Provided Unexpected Response"}]}</Payload>
+            <StatusCode>500</StatusCode>
+            <ReasonPhrase>Internal Server Error</ReasonPhrase>
+        </Set>
+        <AssignVariable>
+            <Name>hdfc.error.handled</Name>
+            <Value>true</Value>
+        </AssignVariable>
+        <AssignVariable>
+            <Name>apigw.code</Name>
+            <Value>TH99500</Value>
+        </AssignVariable>
+        <AssignVariable>
+            <Name>apigw.message</Name>
+            <Value>Backend Service Provided Unexpected Response</Value>
+        </AssignVariable>
+    </FaultResponse>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</RaiseFault>

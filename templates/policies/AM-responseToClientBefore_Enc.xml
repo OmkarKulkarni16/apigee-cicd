@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage continueOnError="false" enabled="true" name="AM-responseToClientBefore_Enc">
+    <DisplayName>AM-responseToClientBefore_Enc</DisplayName>
+    <Properties/>
+    <AssignVariable>
+        <Name>responseToClientBeforeEnc</Name>
+        <Template>{replaceAll(response.content,'"',replacement)}</Template>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

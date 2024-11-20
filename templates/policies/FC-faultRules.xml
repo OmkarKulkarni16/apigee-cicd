@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FlowCallout continueOnError="false" enabled="true" name="FC-faultRules">
+    <DisplayName>FC-faultRules</DisplayName>
+    <FaultRules/>
+    <Properties/>
+    <SharedFlowBundle>SF-HDFCBankGenericFaultHandling-v1</SharedFlowBundle>
+</FlowCallout>

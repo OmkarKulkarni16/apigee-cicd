@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-requestFromClientLog">
+    <DisplayName>AM-requestFromClientLog</DisplayName>
+    <Properties/>
+    <AssignVariable>
+        <Name>replacement</Name>
+        <Value>'</Value>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>RequestFromClient</Name>
+        <Template>{replaceAll(request.content,'"',replacement)}</Template>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

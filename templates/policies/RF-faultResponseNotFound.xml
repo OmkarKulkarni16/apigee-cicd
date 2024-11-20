@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RaiseFault async="false" continueOnError="false" enabled="true" name="RF-faultResponseNotFound">
+    <DisplayName>RF-faultResponseNotFound</DisplayName>
+    <Properties/>
+    <FaultResponse>
+        <Set>
+            <Headers/>
+            <Payload contentType="text/plain">Error Code : Content Not Found</Payload>
+            <StatusCode>404</StatusCode>
+            <ReasonPhrase>Not Found</ReasonPhrase>
+        </Set>
+        <AssignVariable>
+            <Name>apigw.code</Name>
+            <Value>404</Value>
+        </AssignVariable>
+        <AssignVariable>
+            <Name>apigw.message</Name>
+            <Value>Content Not Found</Value>
+        </AssignVariable>
+    </FaultResponse>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</RaiseFault>

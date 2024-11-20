@@ -1,0 +1,14 @@
+{
+    "gcp_project_id": "booming-pride-432710-j9",
+    "proxy_category": "low",
+    "proxy_bundle_directory": "proxies_export",
+    "categories": {
+        "low": ["policy1", "policy2"],
+        "medium": ["policy1", "policy2", "policy3"],
+        "high": ["AM-commonLogging", "AM-requestFromClientLog", "AM-RequestPayloadToBackendLog", "AM-responsePayloadFromBackendLog", "AM-responseToClientBefore_Enc", "AM-responseToClientLog", "AM-setErrorResponsePayload", "AM-SetPayload", "AM-setPayloadResponse", "AM-setSuccessFlag", "EV-RequestLogs", "EV-ResponseErrorCodeLogs", "FC-faultRules", "FC-joseDecryption", "FC-joseEncryption", "FC-preFlow", "FC-ThreatProtection", "RF-faultResponseMethodNotAllowed", "RF-faultResponseNotFound", "RF-responsePayloadValidation"],
+        "critical": ["policy1", "policy2", "policy3", "policy4", "policy5"]
+    },
+    "proxy_name": "apiproxy",
+    "proxy_base_path": "/apiproxy",
+    "target_server_name": "mocktarget-server"
+}

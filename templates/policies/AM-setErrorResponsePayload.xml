@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-setErrorResponsePayload">
+    <DisplayName>AM-setErrorResponsePayload</DisplayName>
+    <Properties/>
+    <Set>
+        <Payload contentType="application/problem+json">{"title": "Bad Request","errors": [{"code": "{responseLogs.resp-errorCode}","reason": "{responseLogs.resp-errorMessage}"}]}</Payload>
+        <StatusCode>400</StatusCode>
+        <ReasonPhrase>Bad Request</ReasonPhrase>
+    </Set>
+    <AssignVariable>
+        <Name>isSuccess</Name>
+        <Value>true</Value>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-setPayloadResponse">
+    <DisplayName>AM-setPayloadResponse</DisplayName>
+    <Properties/>
+    <Set>
+        <Payload contentType="application/jose">{encrypted.responseContent}</Payload>
+        <StatusCode>200</StatusCode>
+        <ReasonPhrase>OK</ReasonPhrase>
+    </Set>
+    <AssignVariable>
+        <Name>isSuccess</Name>
+        <Value>true</Value>
+    </AssignVariable>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

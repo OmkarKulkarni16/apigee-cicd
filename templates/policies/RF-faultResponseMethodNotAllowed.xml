@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RaiseFault async="false" continueOnError="false" enabled="true" name="RF-faultResponseMethodNotAllowed">
+    <DisplayName>RF-faultResponseMethodNotAllowed</DisplayName>
+    <Properties/>
+    <FaultResponse>
+        <Set>
+            <Headers/>
+            <Payload contentType="application/problem+json" variablePrefix="@@" variableSuffix="##">{"title": "Method Not Allowed","errors": [{"code": "TH99405","reason": "Request Method Not Allowed For API Access"}]}</Payload>
+            <StatusCode>405</StatusCode>
+            <ReasonPhrase>Method Not Allowed</ReasonPhrase>
+        </Set>
+        <AssignVariable>
+            <Name>apigw.code</Name>
+            <Value>TH99405</Value>
+        </AssignVariable>
+        <AssignVariable>
+            <Name>apigw.message</Name>
+            <Value>Request Method Not Allowed For API Access</Value>
+        </AssignVariable>
+    </FaultResponse>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</RaiseFault>
