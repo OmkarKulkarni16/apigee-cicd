@@ -32,7 +32,7 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
                 template_content = template_file.read()
                 print(f"Processing template: {template_path}")
                 template = Template(template_content)
-                output = template.safe_substitute(proxy_name=proxy_name)
+                output = template.safe_substitute(proxy_name=proxy_name, policy_name=policy)  # Add 'policy_name'
                 with open(output_path, "w") as output_file:
                     output_file.write(output)
                 print(f"Generated file: {output_path}")
@@ -62,13 +62,14 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
             template_content = template_file.read()
             print(f"Processing Target Endpoint template: {target_template_path}")
             template = Template(template_content)
-            output = template.safe_substitute(target_server_name=target_server_name)
-            with open(output_path, "w") as output_file:
+            output = template.safe_substitute(target_server_name=target_server_name, proxy_name=proxy_name)
+            with open(target_output_path, "w") as output_file:
                 output_file.write(output)
             print(f"Generated Target Endpoint file: {target_output_path}")
     except Exception as e:
         print(f"Error processing target template: {e}")
         raise
+
 
 def create_zip(proxy_dir):
     zip_path = shutil.make_archive(proxy_dir, 'zip', os.path.dirname(proxy_dir), os.path.basename(proxy_dir))
@@ -77,24 +78,19 @@ def create_zip(proxy_dir):
 
 def validate_proxy(token, apigee_base_url, proxy_bundle_path):
     headers = {"Authorization": f"Bearer {token}"}
-    validate_url = f"{apigee_base_url}/apis?name=apiproxy&action=validate&validate=true"
-    
-    try:
-        with open(proxy_bundle_path, "rb") as file:
-            files = {"file": ("proxy_bundle.zip", file, "application/zip")}
-            response = requests.post(validate_url, headers=headers, files=files)
+    with open(proxy_bundle_path, "rb") as file:
+        files = {"file": file}
+        url = f"{apigee_base_url}/apis?action=validate"  # Generic validation URL for new proxies
+        response = requests.post(url, headers=headers, files=files)
 
-        if response.status_code == 200:
-            print("PASS HTTP_STATUS_CODE --> 200")
-            print("Validation Successful!")
-            print(response.json())
-        else:
-            print(f"FAIL HTTP_STATUS_CODE --> {response.status_code}")
-            print(response.text)
-            exit(1)
-    except requests.exceptions.RequestException as e:
-        print(f"Error during validation: {e}")
+    if response.status_code != 200:
+        print(f"Validation Failed! HTTP Status Code: {response.status_code}")
+        print(response.text)
         exit(1)
+    print("Validation Successful!")
+    print(response.text)
+
+
 
 def deploy_with_maven(proxy_name, env_name, gcp_project_id):
     proxy_bundle_path = os.path.join(BASE_DIR, proxy_name, "apiproxy.zip")
