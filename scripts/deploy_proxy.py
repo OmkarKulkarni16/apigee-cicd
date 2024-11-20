@@ -9,7 +9,7 @@ import requests
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "../configs/config.json")
 BASE_DIR = "C:/Users/omkar/Documents/tmp/proxy_deployment"
-TEMPLATES_DIR = "templates"
+TEMPLATES_DIR = os.path.join(BASE_DIR, "../templates")
 POM_FILE = "pom.xml"
 
 def load_config():
