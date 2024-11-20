@@ -76,11 +76,13 @@ def create_zip(proxy_dir):
     print(f"Created zip bundle at: {zip_path}")
     return zip_path
 
-def validate_proxy(token, apigee_base_url, proxy_bundle_path):
+def validate_proxy(token, apigee_base_url, proxy_name, proxy_bundle_path):
     headers = {"Authorization": f"Bearer {token}"}
     with open(proxy_bundle_path, "rb") as file:
         files = {"file": file}
-        url = f"{apigee_base_url}/apis?action=validate"  # Generic validation URL for new proxies
+        # Correctly include proxy_name in the URL
+        url = f"{apigee_base_url}/apis/{proxy_name}/revisions?action=validate"
+        print(f"Validation URL: {url}")  # Debugging log to verify the URL
         response = requests.post(url, headers=headers, files=files)
 
     if response.status_code != 200:
@@ -89,6 +91,7 @@ def validate_proxy(token, apigee_base_url, proxy_bundle_path):
         exit(1)
     print("Validation Successful!")
     print(response.text)
+
 
 
 
@@ -141,6 +144,7 @@ if __name__ == "__main__":
             validate_proxy(
                 GCP_ACCESS_TOKEN,
                 APIGEE_BASE_URL,
+                PROXY_NAME,
                 os.path.join(BASE_DIR, PROXY_NAME, "apiproxy.zip")
             )
         elif stage == "deploy":
