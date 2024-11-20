@@ -26,9 +26,8 @@ def create_directories(proxy_name):
 
 
 def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list, target_server_name):
-    """
-    Generate XML files dynamically based on templates.
-    """
+
+
     for policy in policies_list:
         template_path = f"{TEMPLATES_DIR}/policies/{policy}.xml"
         output_path = f"{proxy_dir}/policies/{policy}.xml"
@@ -37,13 +36,9 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
                 template_content = template_file.read()
                 print(f"Processing template: {template_path}")
 
-                # Check if the template has placeholders
-                if "${" in template_content:
-                    template = Template(template_content)
-                    output = template.safe_substitute(proxy_name=proxy_name)
-                else:
-                    output = template_content  # No placeholders, write as-is
 
+                template = Template(template_content)
+                output = template.safe_substitute(proxy_name=proxy_name)
                 with open(output_path, "w") as output_file:
                     output_file.write(output)
                 print(f"Generated file: {output_path}")
@@ -60,29 +55,42 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
     try:
         with open(proxy_template_path, "r") as template_file:
             template_content = template_file.read()
+            print(f"Processing Proxy Endpoint template: {proxy_template_path}")
+
+            # Safely substitute required variables
             template = Template(template_content)
-            output = template.substitute(proxy_base_path=proxy_base_path)
+            output = template.safe_substitute(proxy_base_path=proxy_base_path, proxy_name=proxy_name)
             with open(proxy_output_path, "w") as output_file:
                 output_file.write(output)
-        print(f"Generated Proxy Endpoint file: {proxy_output_path}")
+            print(f"Generated Proxy Endpoint file: {proxy_output_path}")
+    except KeyError as e:
+        print(f"Missing placeholder in proxy template {proxy_template_path}: {e}")
+        raise
     except Exception as e:
         print(f"Error processing proxy template: {e}")
         raise
 
-    # Process Target Endpoint template
+
     target_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/targets/default.xml"
     target_output_path = f"{proxy_dir}/targets/default.xml"
     try:
         with open(target_template_path, "r") as template_file:
             template_content = template_file.read()
+            print(f"Processing Target Endpoint template: {target_template_path}")
+
+
             template = Template(template_content)
-            output = template.substitute(target_server_name=target_server_name)
+            output = template.safe_substitute(target_server_name=target_server_name)
             with open(target_output_path, "w") as output_file:
                 output_file.write(output)
-        print(f"Generated Target Endpoint file: {target_output_path}")
+            print(f"Generated Target Endpoint file: {target_output_path}")
+    except KeyError as e:
+        print(f"Missing placeholder in target template {target_template_path}: {e}")
+        raise
     except Exception as e:
         print(f"Error processing target template: {e}")
         raise
+
 
 
 
