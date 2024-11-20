@@ -17,7 +17,7 @@ def load_config():
         return json.load(file)
 
 def create_directories(proxy_name):
-    proxy_dir = os.path.join(BASE_DIR, proxy_name, "apiproxy")
+    proxy_dir = os.path.join(BASE_DIR, "scripts", proxy_name, "apiproxy")
     os.makedirs(os.path.join(proxy_dir, "policies"), exist_ok=True)
     os.makedirs(os.path.join(proxy_dir, "proxies"), exist_ok=True)
     os.makedirs(os.path.join(proxy_dir, "targets"), exist_ok=True)
@@ -32,7 +32,7 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
                 template_content = template_file.read()
                 print(f"Processing template: {template_path}")
                 template = Template(template_content)
-                output = template.safe_substitute(proxy_name=proxy_name, policy_name=policy)  # Add 'policy_name'
+                output = template.safe_substitute(proxy_name=proxy_name, policy_name=policy)
                 with open(output_path, "w") as output_file:
                     output_file.write(output)
                 print(f"Generated file: {output_path}")
@@ -70,19 +70,17 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
         print(f"Error processing target template: {e}")
         raise
 
-
 def create_zip(proxy_dir):
     zip_path = shutil.make_archive(proxy_dir, 'zip', os.path.dirname(proxy_dir), os.path.basename(proxy_dir))
     print(f"Created zip bundle at: {zip_path}")
     return zip_path
 
-def validate_proxy(token, apigee_base_url, proxy_name, proxy_bundle_path):
+def validate_proxy(token, apigee_base_url, proxy_bundle_path):
     headers = {"Authorization": f"Bearer {token}"}
     with open(proxy_bundle_path, "rb") as file:
         files = {"file": file}
-        # Correctly include proxy_name in the URL
-        url = f"{apigee_base_url}/apis/{proxy_name}/revisions?action=validate"
-        print(f"Validation URL: {url}")  # Debugging log to verify the URL
+        url = f"{apigee_base_url}/apis?action=validate"
+        print(f"Validation URL: {url}")
         response = requests.post(url, headers=headers, files=files)
 
     if response.status_code != 200:
@@ -92,11 +90,8 @@ def validate_proxy(token, apigee_base_url, proxy_name, proxy_bundle_path):
     print("Validation Successful!")
     print(response.text)
 
-
-
-
 def deploy_with_maven(proxy_name, env_name, gcp_project_id):
-    proxy_bundle_path = os.path.join(BASE_DIR, proxy_name, "apiproxy.zip")
+    proxy_bundle_path = os.path.join(BASE_DIR, "scripts", proxy_name, "apiproxy.zip")
     maven_command = [
         "mvn", "clean", "install", "-Pgoogleapi",
         f"-Denv={env_name}",
@@ -115,7 +110,7 @@ if __name__ == "__main__":
     import sys
     try:
         config = load_config()
-        PROXY_NAME = os.getenv("PROXY_NAME", config["proxy_name"])
+        PROXY_NAME = os.getenv("PROXY_NAME", config["proxy_name"])  # Taken dynamically from the environment variable
         PROXY_CATEGORY = os.getenv("PROXY_CATEGORY", config["proxy_category"])
         PROXY_BASE_PATH = os.getenv("PROXY_BASE_PATH", config["proxy_base_path"])
         TARGET_SERVER_NAME = os.getenv("TARGET_SERVER_NAME", config["target_server_name"])
@@ -141,11 +136,13 @@ if __name__ == "__main__":
             )
             create_zip(proxy_dir)
         elif stage == "validate":
+            proxy_bundle_path = os.path.join(
+                BASE_DIR, "scripts", PROXY_NAME, "apiproxy.zip"
+            )
             validate_proxy(
                 GCP_ACCESS_TOKEN,
                 APIGEE_BASE_URL,
-                PROXY_NAME,
-                os.path.join(BASE_DIR, PROXY_NAME, "apiproxy.zip")
+                proxy_bundle_path
             )
         elif stage == "deploy":
             deploy_with_maven(PROXY_NAME, ENV_NAME, config["gcp_project_id"])
