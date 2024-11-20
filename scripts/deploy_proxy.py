@@ -1,8 +1,8 @@
 import os
+from string import Template
 import json
 import shutil
 import subprocess
-from string import Template
 import requests
 
 
@@ -24,7 +24,11 @@ def create_directories(proxy_name):
     os.makedirs(os.path.join(proxy_dir, "targets"), exist_ok=True)
     return proxy_dir
 
+
 def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list, target_server_name):
+    """
+    Generate XML files dynamically based on templates.
+    """
     for policy in policies_list:
         template_path = f"{TEMPLATES_DIR}/policies/{policy}.xml"
         output_path = f"{proxy_dir}/policies/{policy}.xml"
@@ -32,8 +36,14 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
             with open(template_path, "r") as template_file:
                 template_content = template_file.read()
                 print(f"Processing template: {template_path}")
-                template = Template(template_content)
-                output = template.substitute(proxy_name=proxy_name)
+
+                # Check if the template has placeholders
+                if "${" in template_content:
+                    template = Template(template_content)
+                    output = template.safe_substitute(proxy_name=proxy_name)
+                else:
+                    output = template_content  # No placeholders, write as-is
+
                 with open(output_path, "w") as output_file:
                     output_file.write(output)
                 print(f"Generated file: {output_path}")
@@ -44,7 +54,7 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
             print(f"Error processing template {template_path}: {e}")
             raise
 
-
+    # Process Proxy Endpoint template
     proxy_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/proxies/default.xml"
     proxy_output_path = f"{proxy_dir}/proxies/default.xml"
     try:
@@ -54,11 +64,12 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
             output = template.substitute(proxy_base_path=proxy_base_path)
             with open(proxy_output_path, "w") as output_file:
                 output_file.write(output)
+        print(f"Generated Proxy Endpoint file: {proxy_output_path}")
     except Exception as e:
         print(f"Error processing proxy template: {e}")
         raise
 
-
+    # Process Target Endpoint template
     target_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/targets/default.xml"
     target_output_path = f"{proxy_dir}/targets/default.xml"
     try:
@@ -68,9 +79,11 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
             output = template.substitute(target_server_name=target_server_name)
             with open(target_output_path, "w") as output_file:
                 output_file.write(output)
+        print(f"Generated Target Endpoint file: {target_output_path}")
     except Exception as e:
         print(f"Error processing target template: {e}")
         raise
+
 
 
 def create_zip(proxy_dir):
