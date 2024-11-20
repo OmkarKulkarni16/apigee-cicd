@@ -140,7 +140,6 @@ if __name__ == "__main__":
             validate_proxy(
                 GCP_ACCESS_TOKEN,
                 APIGEE_BASE_URL,
-                PROXY_NAME,
                 os.path.join(BASE_DIR, PROXY_NAME, "apiproxy.zip")
             )
         elif stage == "deploy":
