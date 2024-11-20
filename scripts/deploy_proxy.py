@@ -6,7 +6,8 @@ from string import Template
 import requests
 
 # Configuration
-CONFIG_FILE = "configs/config.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(BASE_DIR, "../configs/config.json")
 BASE_DIR = "C:/Users/omkar/Documents/tmp/proxy_deployment"
 TEMPLATES_DIR = "templates"
 POM_FILE = "pom.xml"
