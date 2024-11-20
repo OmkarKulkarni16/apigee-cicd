@@ -5,7 +5,6 @@ import shutil
 import subprocess
 import requests
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "../configs/config.json")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "../templates")
@@ -24,10 +23,7 @@ def create_directories(proxy_name):
     os.makedirs(os.path.join(proxy_dir, "targets"), exist_ok=True)
     return proxy_dir
 
-
 def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list, target_server_name):
-
-
     for policy in policies_list:
         template_path = f"{TEMPLATES_DIR}/policies/{policy}.xml"
         output_path = f"{proxy_dir}/policies/{policy}.xml"
@@ -35,41 +31,29 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
             with open(template_path, "r") as template_file:
                 template_content = template_file.read()
                 print(f"Processing template: {template_path}")
-
-
                 template = Template(template_content)
                 output = template.safe_substitute(proxy_name=proxy_name)
                 with open(output_path, "w") as output_file:
                     output_file.write(output)
                 print(f"Generated file: {output_path}")
-        except KeyError as e:
-            print(f"Missing placeholder in template {template_path}: {e}")
-            raise
         except Exception as e:
             print(f"Error processing template {template_path}: {e}")
             raise
 
-    # Process Proxy Endpoint template
     proxy_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/proxies/default.xml"
     proxy_output_path = f"{proxy_dir}/proxies/default.xml"
     try:
         with open(proxy_template_path, "r") as template_file:
             template_content = template_file.read()
             print(f"Processing Proxy Endpoint template: {proxy_template_path}")
-
-            # Safely substitute required variables
             template = Template(template_content)
             output = template.safe_substitute(proxy_base_path=proxy_base_path, proxy_name=proxy_name)
             with open(proxy_output_path, "w") as output_file:
                 output_file.write(output)
             print(f"Generated Proxy Endpoint file: {proxy_output_path}")
-    except KeyError as e:
-        print(f"Missing placeholder in proxy template {proxy_template_path}: {e}")
-        raise
     except Exception as e:
         print(f"Error processing proxy template: {e}")
         raise
-
 
     target_template_path = f"{TEMPLATES_DIR}/bundle/apiproxy/targets/default.xml"
     target_output_path = f"{proxy_dir}/targets/default.xml"
@@ -77,33 +61,25 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
         with open(target_template_path, "r") as template_file:
             template_content = template_file.read()
             print(f"Processing Target Endpoint template: {target_template_path}")
-
-
             template = Template(template_content)
             output = template.safe_substitute(target_server_name=target_server_name)
             with open(target_output_path, "w") as output_file:
                 output_file.write(output)
             print(f"Generated Target Endpoint file: {target_output_path}")
-    except KeyError as e:
-        print(f"Missing placeholder in target template {target_template_path}: {e}")
-        raise
     except Exception as e:
         print(f"Error processing target template: {e}")
         raise
-
-
-
 
 def create_zip(proxy_dir):
     zip_path = shutil.make_archive(proxy_dir, 'zip', os.path.dirname(proxy_dir), os.path.basename(proxy_dir))
     print(f"Created zip bundle at: {zip_path}")
     return zip_path
 
-def validate_proxy(token, apigee_base_url, proxy_bundle_path):
+def validate_proxy(token, apigee_base_url, proxy_name, proxy_bundle_path):
     headers = {"Authorization": f"Bearer {token}"}
     with open(proxy_bundle_path, "rb") as file:
         files = {"file": file}
-        url = f"{apigee_base_url}/apis?action=validate&validate=true"
+        url = f"{apigee_base_url}/apis/{proxy_name}/revisions?action=validate"
         response = requests.post(url, headers=headers, files=files)
 
     if response.status_code != 200:
@@ -127,6 +103,7 @@ def deploy_with_maven(proxy_name, env_name, gcp_project_id):
         print(f"Deployment of {proxy_name} was successful.")
     except subprocess.CalledProcessError as e:
         print(f"Deployment failed: {e}")
+        raise
 
 if __name__ == "__main__":
     import sys
@@ -158,7 +135,12 @@ if __name__ == "__main__":
             )
             create_zip(proxy_dir)
         elif stage == "validate":
-            validate_proxy(GCP_ACCESS_TOKEN, APIGEE_BASE_URL, os.path.join(BASE_DIR, PROXY_NAME, "apiproxy.zip"))
+            validate_proxy(
+                GCP_ACCESS_TOKEN,
+                APIGEE_BASE_URL,
+                PROXY_NAME,
+                os.path.join(BASE_DIR, PROXY_NAME, "apiproxy.zip")
+            )
         elif stage == "deploy":
             deploy_with_maven(PROXY_NAME, ENV_NAME, config["gcp_project_id"])
         else:
