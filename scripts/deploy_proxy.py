@@ -7,7 +7,7 @@ import requests
 
 # Configuration
 CONFIG_FILE = "configs/config.json"
-BASE_DIR = "C:\Users\omkar\Documents\tmp\proxy_deployment"  # Change this path to your Windows directory
+BASE_DIR = "C:/Users/omkar/Documents/tmp/proxy_deployment"
 TEMPLATES_DIR = "templates"
 POM_FILE = "pom.xml"
 
