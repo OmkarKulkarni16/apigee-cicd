@@ -56,7 +56,8 @@ limitations under the License.
 		<deployment.description>n/a</deployment.description>
 		<apigee.config.options>update</apigee.config.options>
 		<apigee.config.dir>resources/edge</apigee.config.dir>
-        <apigee.proxy.bundle.path>apiproxy</apigee.proxy.bundle.path> 
+        <apigee.proxy.bundle.path>${project.root.dir}/scripts/${proxy.name}/apiproxy.zip</apigee.proxy.bundle.path>
+		<apigee.bearer>${token}</apigee.bearer> 
 	</properties>
 
 	<profiles>
@@ -98,10 +99,9 @@ limitations under the License.
 
 		<plugins>
 
-			<!-- copy the full apiproxy folder to target folder -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>copy-resources</id>
@@ -114,7 +114,7 @@ limitations under the License.
 							<resources>
 								<resource>
 									<directory>${apigee.proxy.bundle.path}</directory>
-									<filtering>true</filtering>
+									<filtering>false</filtering>
 									<includes>
 										<include>apiproxy/**</include>
 										<include>sharedflowbundle/**</include>
@@ -129,6 +129,7 @@ limitations under the License.
 				</executions>
 			</plugin>
 
+
 			<plugin>
 				<groupId>com.google.code.maven-replacer-plugin</groupId>
 				<artifactId>replacer</artifactId>
@@ -142,10 +143,11 @@ limitations under the License.
 					</execution>
 				</executions>
 				<configuration>
+					<verbose>true</verbose>
 					<basedir>${target.root.dir}</basedir>
 					<includes>
 						<include>test/integration/support/init.js</include>
-						<include>apiproxy/${proxy.name}-v1.xml</include>
+						<include>apiproxy/*.xml</include>
 						<include>apiproxy/proxies/default.xml</include>
 					</includes>
 					<replacements>
@@ -166,90 +168,62 @@ limitations under the License.
 			</plugin>
 
 			<plugin>
-                <groupId>com.apigee.edge.config</groupId>
-                <artifactId>apigee-config-maven-plugin</artifactId>
-                <version>${apigee.config-plugin.version}</version>
-
+				<groupId>com.apigee.edge.config</groupId>
+				<artifactId>apigee-config-maven-plugin</artifactId>
+				<version>${apigee.config-plugin.version}</version>
 				<executions>
-                    <execution>
-                        <id>create-config-references</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>references</goal>
-                        </goals>
-                    </execution>
+					<execution>
+						<id>create-config-references</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>references</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>create-config-targetserver</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>targetservers</goal>
+						</goals>
+						<configuration>
+							<verbose>true</verbose>
+						</configuration>
+					</execution>
 					<execution>
 						<id>create-config-keystores</id>
-						<phase>install</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>keystores</goal>
 						</goals>
+						<configuration>
+							<enabled>${create.keystores}</enabled>
+							<verbose>true</verbose>
+						</configuration>
 					</execution>
 					<execution>
-						<id>create-config-aliases</id>
+						<id>create-config-kvm</id>
 						<phase>install</phase>
 						<goals>
-							<goal>aliases</goal>
+							<goal>keyvaluemaps</goal>
 						</goals>
 					</execution>
-                    <execution>
-                        <id>create-config-targetserver</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>targetservers</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-kvm</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>keyvaluemaps</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-resourcefiles</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>resourcefiles</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-apiproduct</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>apiproducts</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-developer</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>developers</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-app</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>apps</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-reports</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>reports</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>create-config-flowhooks</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>flowhooks</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+					<execution>
+						<id>create-config-apiproduct</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>apiproducts</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>create-config-developer</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>developers</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 
 			<plugin>
 				<groupId>io.apigee.build-tools.enterprise4g</groupId>
@@ -258,27 +232,35 @@ limitations under the License.
 				<executions>
 					<execution>
 						<id>configure-bundle-step</id>
-						<phase>package</phase>
+						<phase>process-resources</phase> <!-- Changed phase -->
 						<goals>
 							<goal>configure</goal>
 						</goals>
+						<configuration>
+							<verbose>true</verbose>
+						</configuration>
 					</execution>
-					<!--deploy bundle -->
 					<execution>
 						<id>deploy-bundle-step</id>
-						<phase>install</phase>
+						<phase>deploy</phase> <!-- Changed from install to deploy -->
 						<goals>
 							<goal>deploy</goal>
 						</goals>
+						<configuration>
+							<org>${apigee.org}</org>
+							<env>${apigee.env}</env>
+							<bundle>${target.root.dir}/apiproxy.zip</bundle>
+							<bearer>${apigee.bearer}</bearer>
+							<verbose>true</verbose>
+							<skip>${apigee.skip.deploy}</skip>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 
-			<!-- cleaning dirs -->
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>2.5</version>
-
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>auto-clean-init</id>
@@ -286,9 +268,21 @@ limitations under the License.
 						<goals>
 							<goal>clean</goal>
 						</goals>
+						<configuration>
+							<filesets>
+								<fileset>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>apiproxy/**</include>
+										<include>sharedflowbundle/**</include>
+									</includes>
+								</fileset>
+							</filesets>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 
