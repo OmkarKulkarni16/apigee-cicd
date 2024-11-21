@@ -140,9 +140,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Apigee Proxy Deployment Tool")
     parser.add_argument("stage", choices=["generate", "validate", "deploy"], help="Stage to execute")
     parser.add_argument("--proxy_name", required=True, help="Name of the proxy")
-    parser.add_argument("--proxy_category", required=True, choices=["low", "medium", "high", "critical"], help="Proxy category")
-    parser.add_argument("--proxy_base_path", required=True, help="Base path for the proxy")
-    parser.add_argument("--target_server_name", required=True, help="Target server name")
+    parser.add_argument("--proxy_category", required=False, choices=["low", "medium", "high", "critical"], help="Proxy category (required for 'generate')")
+    parser.add_argument("--proxy_base_path", required=False, help="Base path for the proxy (required for 'generate')")
+    parser.add_argument("--target_server_name", required=False, help="Target server name (required for 'generate')")
     parser.add_argument("--env_name", default="dev-00", help="Environment name (default: dev-00)")
     parser.add_argument("--token", required=False, help="GCP Access Token")
     args = parser.parse_args()
@@ -161,6 +161,8 @@ if __name__ == "__main__":
             raise ValueError("GCP_ACCESS_TOKEN is required.")
 
         if args.stage == "generate":
+            if not (PROXY_CATEGORY and PROXY_BASE_PATH and TARGET_SERVER_NAME):
+                raise ValueError("`--proxy_category`, `--proxy_base_path`, and `--target_server_name` are required for 'generate'")
             proxy_dir = create_directories(PROXY_NAME)
             generate_files(
                 config,
