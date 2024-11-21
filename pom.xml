@@ -18,7 +18,7 @@ limitations under the License.
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>google-jenkins-pipeline</groupId>
-	<artifactId>${proxy.name}</artifactId>
+	<artifactId>${dynamic.proxy.name}</artifactId>
 	<version>v1</version>
 	<name>${proxy.name}${deployment.suffix}</name>
 	<packaging>pom</packaging>
