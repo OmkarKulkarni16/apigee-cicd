@@ -89,13 +89,16 @@ def generate_file_from_template(template_path, output_path, substitutions, file_
 
 
 def create_zip(proxy_dir):
-    try:
-        zip_path = shutil.make_archive(proxy_dir, 'zip', os.path.dirname(proxy_dir), os.path.basename(proxy_dir))
-        logger.info(f"Created zip bundle at: {zip_path}")
-        return zip_path
-    except Exception as e:
-        logger.error(f"Failed to create zip bundle: {e}")
-        raise
+    parent_dir = os.path.dirname(os.path.dirname(proxy_dir))  # Correct parent directory
+    zip_path = shutil.make_archive(
+        os.path.join(parent_dir, os.path.basename(proxy_dir)), 
+        'zip', 
+        os.path.dirname(proxy_dir), 
+        os.path.basename(proxy_dir)
+    )
+    logger.info(f"Created zip bundle at: {zip_path}")
+    return zip_path
+
 
 
 def validate_proxy(token, apigee_base_url, proxy_bundle_path, proxy_name):
