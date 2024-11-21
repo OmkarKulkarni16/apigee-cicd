@@ -16,14 +16,12 @@ CONFIG_FILE = os.path.join(BASE_DIR, "../configs/config.json")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "../templates")
 POM_FILE = os.path.join(BASE_DIR, "../pom.xml")
 
-
 def load_config():
     if not os.path.exists(CONFIG_FILE):
         raise FileNotFoundError(f"Configuration file not found: {CONFIG_FILE}")
     with open(CONFIG_FILE, 'r') as file:
         logger.info(f"Loaded configuration from {CONFIG_FILE}")
         return json.load(file)
-
 
 def create_directories(proxy_name):
     proxy_dir = os.path.join(BASE_DIR, "scripts", proxy_name, "apiproxy")
@@ -32,7 +30,6 @@ def create_directories(proxy_name):
     os.makedirs(os.path.join(proxy_dir, "targets"), exist_ok=True)
     logger.info(f"Directories created for proxy at: {proxy_dir}")
     return proxy_dir
-
 
 def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list, target_server_name):
     # Generate Policy Files
@@ -70,7 +67,6 @@ def generate_files(config, proxy_dir, proxy_name, proxy_base_path, policies_list
         "Target Endpoint"
     )
 
-
 def generate_file_from_template(template_path, output_path, substitutions, file_type):
     if not os.path.exists(template_path):
         logger.error(f"{file_type} template file not found: {template_path}")
@@ -87,25 +83,14 @@ def generate_file_from_template(template_path, output_path, substitutions, file_
         logger.error(f"Error generating {file_type} file {template_path}: {e}")
         raise
 
-
 def create_zip(proxy_dir):
-    parent_dir = os.path.dirname(os.path.dirname(proxy_dir))  # Correct parent directory
-    zip_path = shutil.make_archive(
-        os.path.join(parent_dir, os.path.basename(proxy_dir)), 
-        'zip', 
-        os.path.dirname(proxy_dir), 
-        os.path.basename(proxy_dir)
-    )
+    parent_dir = os.path.dirname(proxy_dir)
+    zip_path = shutil.make_archive(os.path.join(parent_dir, os.path.basename(proxy_dir)), 'zip', proxy_dir)
     logger.info(f"Created zip bundle at: {zip_path}")
     return zip_path
 
-
-
 def validate_proxy(token, apigee_base_url, proxy_name):
-    proxy_bundle_path = os.path.join(
-        "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Template-Based-Deployment\\Python-Deployment\\apigee-cicd\\scripts\\scripts",
-        "apiproxy.zip"
-    )
+    proxy_bundle_path = os.path.join(BASE_DIR, "scripts", proxy_name, "apiproxy.zip")
     if not os.path.exists(proxy_bundle_path):
         logger.error(f"Proxy bundle not found at: {proxy_bundle_path}")
         raise FileNotFoundError(f"Proxy bundle missing: {proxy_bundle_path}")
@@ -122,13 +107,8 @@ def validate_proxy(token, apigee_base_url, proxy_name):
     logger.info("Validation Successful!")
     logger.info(response.text)
 
-
-
 def deploy_with_maven(proxy_name, env_name, gcp_project_id):
-    proxy_bundle_path = os.path.join(
-        "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Template-Based-Deployment\\Python-Deployment\\apigee-cicd\\scripts\\scripts",
-        "apiproxy.zip"
-    )
+    proxy_bundle_path = os.path.join(BASE_DIR, "scripts", proxy_name, "apiproxy.zip")
     if not os.path.exists(proxy_bundle_path):
         logger.error(f"Proxy bundle not found at: {proxy_bundle_path}")
         raise FileNotFoundError(f"Proxy bundle missing: {proxy_bundle_path}")
@@ -145,8 +125,6 @@ def deploy_with_maven(proxy_name, env_name, gcp_project_id):
     except subprocess.CalledProcessError as e:
         logger.error(f"Deployment failed: {e}")
         raise
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Apigee Proxy Deployment Tool")
@@ -186,8 +164,7 @@ if __name__ == "__main__":
             )
             create_zip(proxy_dir)
         elif args.stage == "validate":
-            proxy_bundle_path = os.path.join(BASE_DIR, "scripts", PROXY_NAME, "apiproxy.zip")
-            validate_proxy(GCP_ACCESS_TOKEN, APIGEE_BASE_URL, proxy_bundle_path, PROXY_NAME)
+            validate_proxy(GCP_ACCESS_TOKEN, APIGEE_BASE_URL, PROXY_NAME)
         elif args.stage == "deploy":
             deploy_with_maven(PROXY_NAME, ENV_NAME, config["gcp_project_id"])
         else:
