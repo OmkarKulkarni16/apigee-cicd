@@ -101,7 +101,11 @@ def create_zip(proxy_dir):
 
 
 
-def validate_proxy(token, apigee_base_url, proxy_bundle_path, proxy_name):
+def validate_proxy(token, apigee_base_url, proxy_name):
+    proxy_bundle_path = os.path.join(
+        "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Template-Based-Deployment\\Python-Deployment\\apigee-cicd\\scripts\\scripts",
+        "apiproxy.zip"
+    )
     if not os.path.exists(proxy_bundle_path):
         logger.error(f"Proxy bundle not found at: {proxy_bundle_path}")
         raise FileNotFoundError(f"Proxy bundle missing: {proxy_bundle_path}")
@@ -119,8 +123,12 @@ def validate_proxy(token, apigee_base_url, proxy_bundle_path, proxy_name):
     logger.info(response.text)
 
 
+
 def deploy_with_maven(proxy_name, env_name, gcp_project_id):
-    proxy_bundle_path = os.path.join(BASE_DIR, "scripts", proxy_name, "apiproxy.zip")
+    proxy_bundle_path = os.path.join(
+        "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Template-Based-Deployment\\Python-Deployment\\apigee-cicd\\scripts\\scripts",
+        "apiproxy.zip"
+    )
     if not os.path.exists(proxy_bundle_path):
         logger.error(f"Proxy bundle not found at: {proxy_bundle_path}")
         raise FileNotFoundError(f"Proxy bundle missing: {proxy_bundle_path}")
@@ -137,6 +145,7 @@ def deploy_with_maven(proxy_name, env_name, gcp_project_id):
     except subprocess.CalledProcessError as e:
         logger.error(f"Deployment failed: {e}")
         raise
+
 
 
 if __name__ == "__main__":
